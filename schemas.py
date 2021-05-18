@@ -23,6 +23,7 @@ class DistricBase(BaseModel):
 
 class RegionBase(BaseModel):
     name: str
+    district: Optional[str] = None
 
     class Config:
         orm_mode = True

@@ -1,12 +1,14 @@
+from typing import List, Optional
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.base import SchemaEventTarget
 import uvicorn
 from fastapi import FastAPI, Depends
-import models, schemas, crud
+import models, schemas, crud, factories
 from database import SessionLocal, engine
 
 
 models.Base.metadata.create_all(engine)
+
 
 app = FastAPI(
     title="SCHOOLS UNDER TREES",
@@ -22,6 +24,34 @@ def get_db():
     finally:
         db.close()
 
+def get_db_session():
+    db = SessionLocal()
+    try:
+        return db
+    finally:
+        db.close()
+
+regions = [
+    "Greater Accra Region",
+    "Central Region",
+    "Eastern Region",
+    "Western Region",
+    "Ashanti Region",
+    "Northern Region",
+    "Upper East Region",
+    "Upper West Region",
+    "Volta Region",
+    "Brong Ahafo Region",
+    "Oti Region",
+    "Western North Region",
+    "Ahafo Region",
+    "Bono East Region",
+    "Savannah Region",
+    "North East Region"
+]
+
+data = crud.insert_regions(regions=regions, db=get_db_session())
+print('Data count:', len(data))
 
 
 @app.get("/", include_in_schema=False)
