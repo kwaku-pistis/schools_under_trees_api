@@ -77,6 +77,12 @@ def get_all_regions(db: Session = Depends(get_db)):
 
 @app.post('/create-district/')
 def create_district(district: schemas.DistrictBase, db: Session = Depends(get_db)):
+    """
+        This api is to create a district and tie it to a region. 
+        So a region is specified using the id of the region.
+
+        - **region_id**: a foreign key to the regions table. So the id specified must be present in the regions table.
+    """
     region_record = crud.get_region_by_id(db=db, id=district.region_id)
     result = region_record.add_district(db=db, name=district.name)
     return {"status": 201, "message": result}
