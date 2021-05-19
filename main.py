@@ -1,4 +1,5 @@
 from typing import List, Optional
+from sqlalchemy.orm.interfaces import SessionExtension
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.base import SchemaEventTarget
 import uvicorn
@@ -59,8 +60,8 @@ async def root():
     return {"message": "Welcome to Schools Under Trees Web Api"}
 
 
-@app.post('/create_regions/')
-def create_regions(region: schemas.RegionBase, db: Session = Depends(get_db)):
+@app.post('/create-region/')
+def create_region(region: schemas.RegionBase, db: Session = Depends(get_db)):
     """
         Create regions in Ghana with the following information
 
@@ -72,6 +73,18 @@ def create_regions(region: schemas.RegionBase, db: Session = Depends(get_db)):
 @app.get('/regions/')
 def get_all_regions(db: Session = Depends(get_db)):
     return crud.get_all_regions(db=db)
+
+
+@app.post('/create-district/')
+def create_district(district: schemas.DistrictBase, db: Session = Depends(get_db)):
+    region_record = crud.get_region_by_id(db=db, id=district.region_id)
+    result = region_record.add_district(db=db, name=district.name)
+    return {"status": 201, "message": result}
+
+
+@app.get('/districts/')
+def get_all_districts(db: Session = Depends(get_db)):
+    return crud.get_all_districts(db=db)
 
 
 if __name__ == "__main__":

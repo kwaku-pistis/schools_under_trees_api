@@ -13,7 +13,7 @@ class SchoolBase(BaseModel):
         orm_mode = True
 
 
-class DistricBase(BaseModel):
+class DistrictBase(BaseModel):
     name: str
     region_id: int
 

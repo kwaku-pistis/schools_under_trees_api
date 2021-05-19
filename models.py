@@ -20,19 +20,23 @@ class Region(Base):
             self.name
         }
 
-
+    def add_district(self, db, name):
+        self.district += [District(name=name)]
+        db.add(self)
+        db.commit()
+        db.refresh(self)
+        return self.district[-1]
 
 
 class District(Base):
     __tablename__ = 'district'
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String)
+    name = Column(String, unique=True)
     date_created = Column(DateTime, default=datetime.utcnow)
     region_id = Column(Integer, ForeignKey('region.id'))
 
     region = relationship('Region', back_populates='district')
-    # region = relationship('Region')
     schools = relationship('School', back_populates='district')
 
     def __repr__(self):
