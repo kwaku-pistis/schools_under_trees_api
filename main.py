@@ -93,5 +93,23 @@ def get_all_districts(db: Session = Depends(get_db)):
     return crud.get_all_districts(db=db)
 
 
+@app.post('/create-school/')
+def create_school(school: schemas.SchoolBase, db: Session = Depends(get_db)):
+    district_record = crud.get_district_by_id(db=db, id=school.district_id)
+    result = district_record.add_schools(
+        db=db, 
+        name=school.name, 
+        description=school.description, 
+        location=school.location, 
+        image_url=school.image_url
+    )
+    return {"status": 201, "message": result}
+
+
+@app.get('/schools/')
+def get_all_schools(db: Session = Depends(get_db)):
+    return crud.get_all_schools(db=db)
+
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

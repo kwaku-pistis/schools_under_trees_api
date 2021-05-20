@@ -57,3 +57,7 @@ def insert_regions(regions: List, db: Session):
             res = create_region(db=db, region=region_data)
             data.append(res.name)
     return data
+
+
+def get_all_schools(db: Session):
+    return db.query(models.School).all()

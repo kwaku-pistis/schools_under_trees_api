@@ -45,6 +45,20 @@ class District(Base):
             self.region_id
         )
 
+    def add_schools(self, db, name, description, location, image_url):
+        self.schools += [
+            School(
+                name=name, 
+                description=description,
+                location=location,
+                image_url=image_url 
+            )
+        ]
+        db.add(self)
+        db.commit()
+        db.refresh(self)
+        return self.schools[-1]
+
 
 class School(Base):
     __tablename__ = 'school_list'

@@ -7,7 +7,7 @@ class SchoolBase(BaseModel):
     description: Optional[str] = Field(description='A short description of the school')
     location: str = Field(title="School's location", description='This will store the google locations of the school')
     district_id: int
-    # region: str
+    image_url: Optional[str]
 
     class Config:
         orm_mode = True
