@@ -4,7 +4,7 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.base import SchemaEventTarget
 import uvicorn
 from fastapi import FastAPI, Depends
-import models, schemas, crud, factories
+import models, schemas, crud
 from database import SessionLocal, engine
 
 

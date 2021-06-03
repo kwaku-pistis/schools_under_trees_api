@@ -50,7 +50,7 @@ def get_district_by_name(db: Session, name: str):
 def insert_regions(regions: List, db: Session):
     data = []
     for region in regions:
-        result = db.query(models.Region).filter(models.Region.name == region).one()
+        result = db.query(models.Region).filter(models.Region.name == region).one_or_none()
         print("##", result)
         if not result:
             region_data = schemas.RegionBase(name=region)
