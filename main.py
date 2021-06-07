@@ -1,7 +1,5 @@
-from typing import List, Optional
-from sqlalchemy.orm.interfaces import SessionExtension
+from typing import Optional
 from sqlalchemy.orm.session import Session
-from sqlalchemy.sql.base import SchemaEventTarget
 import uvicorn
 from fastapi import FastAPI, Depends
 import models, schemas, crud
@@ -60,7 +58,7 @@ async def root():
     return {"message": "Welcome to Schools Under Trees Web Api"}
 
 
-@app.post('/create-region/')
+@app.post('/create-region/', tags=["Region"])
 def create_region(region: schemas.RegionBase, db: Session = Depends(get_db)):
     """
         Create regions in Ghana with the following information
@@ -70,12 +68,12 @@ def create_region(region: schemas.RegionBase, db: Session = Depends(get_db)):
     return crud.create_region(db=db, region=region)
 
 
-@app.get('/regions/')
+@app.get('/regions/', tags=["Region"])
 def get_all_regions(db: Session = Depends(get_db)):
     return crud.get_all_regions(db=db)
 
 
-@app.post('/create-district/')
+@app.post('/create-district/', tags=["District"])
 def create_district(district: schemas.DistrictBase, db: Session = Depends(get_db)):
     """
         This api is to create a district and tie it to a region. 
@@ -88,27 +86,49 @@ def create_district(district: schemas.DistrictBase, db: Session = Depends(get_db
     return {"status": 201, "message": result}
 
 
-@app.get('/districts/')
+@app.get('/districts/', tags=["District"])
 def get_all_districts(db: Session = Depends(get_db)):
     return crud.get_all_districts(db=db)
 
 
-@app.post('/create-school/')
+@app.post('/create-school/', tags=["School"])
 def create_school(school: schemas.SchoolBase, db: Session = Depends(get_db)):
     district_record = crud.get_district_by_id(db=db, id=school.district_id)
-    result = district_record.add_schools(
-        db=db, 
-        name=school.name, 
-        description=school.description, 
-        location=school.location, 
-        image_url=school.image_url
-    )
-    return {"status": 201, "message": result}
+    if district_record:
+        result = district_record.add_schools(
+            db=db, 
+            name=school.name, 
+            description=school.description, 
+            location=school.location
+        )
+        return {"status": 201, "message": result}
 
 
-@app.get('/schools/')
+@app.get('/schools/', tags=["School"])
 def get_all_schools(db: Session = Depends(get_db)):
     return crud.get_all_schools(db=db)
+
+
+@app.post('/add-images/', tags=["School"])
+def add_images_to_school(image: schemas.SchoolImagesBase, db: Session = Depends(get_db)):
+    school_record = crud.get_school_by_id(db=db, id=image.school_id)
+    if school_record:
+        result = school_record.add_images(
+            db=db,
+            image_url=image.image_url,
+            image_category=image.category
+        )
+        return {"status": 201, "message": result}
+
+
+@app.get('/school-images/', tags=["School"])
+def get_school_images(school_id: int, image_category: Optional[str] = None, db: Session = Depends(get_db)):
+    return crud.get_images_by_school_id(db=db, id=school_id, image_category=image_category)
+
+
+@app.get('/all-images/', tags=["School"])
+def get_school_images_by_category(category: Optional[str] = None, db: Session = Depends(get_db)):
+    return crud.get_all_images(db=db, category=category)
 
 
 if __name__ == "__main__":

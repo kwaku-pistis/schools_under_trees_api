@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel, Field
 
 
@@ -27,3 +27,17 @@ class RegionBase(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class ImageBase(BaseModel):
+    image_url: str
+    category: str = Field(title="Image Category", description="This field specifies whether the image is a before, during or an after picture.")
+
+
+class SchoolImagesBase(ImageBase):
+    school_id: int
+
+    class Config:
+        orm_mode = True
+
+

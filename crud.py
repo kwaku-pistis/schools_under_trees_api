@@ -1,5 +1,6 @@
 from typing import List
 from sqlalchemy.orm.session import Session
+from sqlalchemy.sql.functions import mode
 from sqlalchemy.sql.operators import exists
 import models, schemas
 
@@ -61,3 +62,21 @@ def insert_regions(regions: List, db: Session):
 
 def get_all_schools(db: Session):
     return db.query(models.School).all()
+
+
+def get_school_by_id(db: Session, id: int):
+    return db.query(models.School).filter(models.School.id == id).one_or_none()
+
+
+def get_images_by_school_id(db: Session, id: int, image_category: str):
+    if image_category:
+        return db.query(models.SchoolImages).filter(models.SchoolImages.school_id == id, models.SchoolImages.category == image_category)
+
+    return db.query(models.SchoolImages).filter(models.SchoolImages.school_id == id).all()
+
+
+def get_all_images(db: Session, category: str):
+    if category:
+        return db.query(models.SchoolImages).filter(models.SchoolImages.category == category).all()
+
+    return db.query(models.SchoolImages).all()

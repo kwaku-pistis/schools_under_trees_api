@@ -1,7 +1,0 @@
-version: '3'
-services: 
-    api: 
-        image: ubuntu/nginx:1.18-20.04_beta
-        container_name: "school-under-trees-api-container"
-        ports: 
-            - "8000:8000"

@@ -1,8 +1,9 @@
 from datetime import datetime
-from typing import Counter
+from schemas import SchoolImagesBase
+from typing import Counter, List, cast
 from sqlalchemy import Column, ForeignKey, Integer
 from sqlalchemy.orm import relationship, session
-from sqlalchemy.sql.sqltypes import DateTime, String
+from sqlalchemy.sql.sqltypes import Date, DateTime, String
 from database import Base
 
 
@@ -45,19 +46,75 @@ class District(Base):
             self.region_id
         )
 
-    def add_schools(self, db, name, description, location, image_url):
+    def add_schools(self, db, name, description, location, images: SchoolImagesBase):
         self.schools += [
             School(
                 name=name, 
                 description=description,
                 location=location,
-                image_url=image_url 
             )
         ]
+        # add images to school
+        for image in images:
+            self.schools.add_images(db=db, image_url=image.image_url, image_category=image.category)
+
         db.add(self)
         db.commit()
         db.refresh(self)
         return self.schools[-1]
+
+
+class SchoolImages(Base):
+    __tablename__ = 'school_images'
+
+    id  = Column(Integer, primary_key=True, index=True)
+    date_created = Column(DateTime, default=datetime.utcnow)
+    image_url = Column(String)
+    category = Column(String)
+    school_id = Column(Integer, ForeignKey('school_list.id'))
+
+    # school = relationship('School', back_populates='before_images')
+
+    def __repr__(self):
+        return "<(image_url='%s', category='%s', school_id='%s')>" % (
+            self.image_url,
+            self.category,
+            self.school_id
+        )
+
+
+# class DuringImages(Base):
+#     __tablename__ = 'during_images'
+
+#     id  = Column(Integer, primary_key=True, index=True)
+#     date_created = Column(DateTime, default=datetime.utcnow)
+#     image_url = Column(String)
+#     school_id = Column(Integer, ForeignKey('school_list.id'))
+
+#     school = relationship('School', back_populates='during_images')
+
+#     def __repr__(self):
+#         return "<(image_url='%s', school_id='%s')>" % (
+#             self.image_url,
+#             self.school_id
+#         )
+
+
+# class AfterImages(Base):
+#     __tablename__ = 'after_images'
+
+#     id  = Column(Integer, primary_key=True, index=True)
+#     date_created = Column(DateTime, default=datetime.utcnow)
+#     image_url = Column(String)
+#     school_id = Column(Integer, ForeignKey('school_list.id'))
+
+#     school = relationship('School', back_populates='after_images')
+
+#     def __repr__(self):
+#         return "<(image_url='%s', school_id='%s')>" % (
+#             self.image_url,
+#             self.school_id
+#         )
 
 
 class School(Base):
@@ -69,16 +126,33 @@ class School(Base):
     location = Column(String)
     date_created = Column(DateTime, default=datetime.utcnow)
     district_id = Column(Integer, ForeignKey('district.id'))
-    image_url = Column(String)
+    # images_id = Column(Integer, ForeignKey('before_images.id'))
+    # during_images_id = Column(Integer, ForeignKey('during_images.id'))
+    # after_images_id = Column(Integer, ForeignKey('after_images.id'))
 
     district = relationship('District', back_populates='schools')
+    school_images = relationship('SchoolImages')
+    # during_images = relationship('DuringImages', back_populates='school')
+    # after_images = relationship('AfterImages', back_populates='school')
 
     def __repr__(self):
-        return "<(name='%s', description='%s', location='%s', district_id='%s', image_url='%s')>" % (
+        return "<(name='%s', description='%s', location='%s', district_id='%s')>" % (
             self.name,
             self.description,
             self.location,
-            self.distric_id,
-            self.image_url,
+            self.district_id,
         )
+
+    def add_images(self, db, image_url, image_category):
+        self.school_images += [
+            SchoolImages(
+                image_url=image_url,
+                category=image_category
+            )
+        ]
+        db.add(self)
+        db.commit()
+        db.refresh(self)
+        return self.school_images[-1]
+
 
