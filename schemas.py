@@ -2,17 +2,6 @@ from typing import Optional, List
 from pydantic import BaseModel, Field
 
 
-class SchoolBase(BaseModel):
-    name: str = Field(title="Name of School")
-    description: Optional[str] = Field(description='A short description of the school')
-    location: str = Field(title="School's location", description='This will store the google locations of the school')
-    district_id: int
-    image_url: Optional[str]
-
-    class Config:
-        orm_mode = True
-
-
 class DistrictBase(BaseModel):
     name: str
     region_id: int
@@ -41,3 +30,12 @@ class SchoolImagesBase(ImageBase):
         orm_mode = True
 
 
+class SchoolBase(BaseModel):
+    name: str = Field(title="Name of School")
+    description: Optional[str] = Field(description='A short description of the school')
+    location: str = Field(title="School's location", description='This will store the google locations of the school')
+    district_id: int
+    school_images: Optional[List[ImageBase]] = None
+
+    class Config:
+        orm_mode = True

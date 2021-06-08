@@ -60,6 +60,30 @@ def insert_regions(regions: List, db: Session):
     return data
 
 
+def create_school(db: Session, school: schemas.SchoolBase):
+    data = models.School(
+        name=school.name,
+        description=school.description,
+        location=school.location,
+        district_id=school.district_id
+    )
+    
+    db.add(data)
+    db.commit()
+    db.refresh(data)
+
+    if school.school_images:
+        for image in school.school_images:
+            models.School.add_images(
+                self=data,
+                db=db, 
+                image_url=image.image_url, 
+                image_category=image.category
+            )
+
+    return data
+
+
 def get_all_schools(db: Session):
     return db.query(models.School).all()
 

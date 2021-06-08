@@ -1,5 +1,5 @@
 from datetime import datetime
-from schemas import SchoolImagesBase
+from schemas import ImageBase, SchoolImagesBase
 from typing import Counter, List, cast
 from sqlalchemy import Column, ForeignKey, Integer
 from sqlalchemy.orm import relationship, session
@@ -14,7 +14,7 @@ class Region(Base):
     name = Column(String, unique=True)
     date_created = Column(DateTime, default=datetime.utcnow)
 
-    district = relationship('District', back_populates='region')
+    district = relationship('District', back_populates='region', lazy='joined')
 
     def __repr__(self):
         return "<(name='%s')>" % {
@@ -37,8 +37,8 @@ class District(Base):
     date_created = Column(DateTime, default=datetime.utcnow)
     region_id = Column(Integer, ForeignKey('region.id'))
 
-    region = relationship('Region', back_populates='district')
-    schools = relationship('School', back_populates='district')
+    region = relationship('Region', back_populates='district', lazy='joined')
+    schools = relationship('School', back_populates='district', lazy='joined')
 
     def __repr__(self):
         return "<(name='%s', region_id='%s')>" % (
@@ -46,7 +46,7 @@ class District(Base):
             self.region_id
         )
 
-    def add_schools(self, db, name, description, location, images: SchoolImagesBase):
+    def add_schools(self, db, name, description, location, images: ImageBase):
         self.schools += [
             School(
                 name=name, 
@@ -54,13 +54,22 @@ class District(Base):
                 location=location,
             )
         ]
-        # add images to school
-        for image in images:
-            self.schools.add_images(db=db, image_url=image.image_url, image_category=image.category)
 
         db.add(self)
         db.commit()
         db.refresh(self)
+
+        # add images to school
+        if images:
+            for image in images:
+                # self.schools.add_images(db=db, image_url=image.image_url, image_category=image.category)
+                self.schools.school_images += [
+                    SchoolImages(
+                        image_url=image.image_url,
+                        category=image.category
+                    )
+                ]
+
         return self.schools[-1]
 
 
@@ -130,8 +139,8 @@ class School(Base):
     # during_images_id = Column(Integer, ForeignKey('during_images.id'))
     # after_images_id = Column(Integer, ForeignKey('after_images.id'))
 
-    district = relationship('District', back_populates='schools')
-    school_images = relationship('SchoolImages')
+    district = relationship('District', back_populates='schools', lazy='joined')
+    school_images = relationship('SchoolImages', lazy='joined')
     # during_images = relationship('DuringImages', back_populates='school')
     # after_images = relationship('AfterImages', back_populates='school')
 
@@ -153,6 +162,6 @@ class School(Base):
         db.add(self)
         db.commit()
         db.refresh(self)
-        return self.school_images[-1]
+        # return self.school_images[-1]
 
 
