@@ -4,6 +4,7 @@ import uvicorn
 from fastapi import FastAPI, Depends
 import models, schemas, crud
 from database import SessionLocal, engine
+from fastapi.middleware.cors import CORSMiddleware
 
 
 models.Base.metadata.create_all(engine)
@@ -14,6 +15,23 @@ app = FastAPI(
     description="The api to communicate with the schools under trees web app",
     version="1.0.0"
 )
+
+
+origins = [
+    "http://localhost:8000",
+    "http://localhost",
+    "http://localhost:8080",
+    "https://schoolsundertrees.com/",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 # Dependency
 def get_db():
@@ -40,7 +58,7 @@ regions = [
     "Upper East Region",
     "Upper West Region",
     "Volta Region",
-    "Brong Ahafo Region",
+    "Bono Region",
     "Oti Region",
     "Western North Region",
     "Ahafo Region",
@@ -49,7 +67,7 @@ regions = [
     "North East Region"
 ]
 
-data = crud.insert_regions(regions=regions, db=get_db_session())
+data = crud.insert_regions(regions=sorted(regions), db=get_db_session())
 print('Data count:', len(data))
 
 
