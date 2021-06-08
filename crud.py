@@ -45,7 +45,7 @@ def get_district_by_id(db: Session, id: int):
 
 
 def get_district_by_name(db: Session, name: str):
-    return db.query(models.Region).filter(models.District.name == name).one()
+    return db.query(models.Region).filter(models.District.name.ilike('%'+name+'%')).all()
 
 
 def insert_regions(regions: List, db: Session):
@@ -92,9 +92,17 @@ def get_school_by_id(db: Session, id: int):
     return db.query(models.School).filter(models.School.id == id).one_or_none()
 
 
+def get_school_by_name(db: Session, name: str):
+    return db.query(models.School).filter(models.School.name.ilike('%'+name+'%')).all()
+
+
+def get_school_by_district_id(db: Session, district_id: int):
+    return db.query(models.School).filter(models.School.district_id == district_id).all()
+
+
 def get_images_by_school_id(db: Session, id: int, image_category: str):
     if image_category:
-        return db.query(models.SchoolImages).filter(models.SchoolImages.school_id == id, models.SchoolImages.category == image_category)
+        return db.query(models.SchoolImages).filter(models.SchoolImages.school_id == id, models.SchoolImages.category == image_category).all()
 
     return db.query(models.SchoolImages).filter(models.SchoolImages.school_id == id).all()
 

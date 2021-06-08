@@ -5,6 +5,7 @@ from sqlalchemy import Column, ForeignKey, Integer
 from sqlalchemy.orm import relationship, session
 from sqlalchemy.sql.sqltypes import Date, DateTime, String
 from database import Base
+import crud
 
 
 class Region(Base):
@@ -46,31 +47,8 @@ class District(Base):
             self.region_id
         )
 
-    def add_schools(self, db, name, description, location, images: ImageBase):
-        self.schools += [
-            School(
-                name=name, 
-                description=description,
-                location=location,
-            )
-        ]
-
-        db.add(self)
-        db.commit()
-        db.refresh(self)
-
-        # add images to school
-        if images:
-            for image in images:
-                # self.schools.add_images(db=db, image_url=image.image_url, image_category=image.category)
-                self.schools.school_images += [
-                    SchoolImages(
-                        image_url=image.image_url,
-                        category=image.category
-                    )
-                ]
-
-        return self.schools[-1]
+    def get_schools(id, db):
+        return crud.get_school_by_district_id(db=db, district_id=id)
 
 
 class SchoolImages(Base):
@@ -90,40 +68,6 @@ class SchoolImages(Base):
             self.category,
             self.school_id
         )
-
-
-# class DuringImages(Base):
-#     __tablename__ = 'during_images'
-
-#     id  = Column(Integer, primary_key=True, index=True)
-#     date_created = Column(DateTime, default=datetime.utcnow)
-#     image_url = Column(String)
-#     school_id = Column(Integer, ForeignKey('school_list.id'))
-
-#     school = relationship('School', back_populates='during_images')
-
-#     def __repr__(self):
-#         return "<(image_url='%s', school_id='%s')>" % (
-#             self.image_url,
-#             self.school_id
-#         )
-
-
-# class AfterImages(Base):
-#     __tablename__ = 'after_images'
-
-#     id  = Column(Integer, primary_key=True, index=True)
-#     date_created = Column(DateTime, default=datetime.utcnow)
-#     image_url = Column(String)
-#     school_id = Column(Integer, ForeignKey('school_list.id'))
-
-#     school = relationship('School', back_populates='after_images')
-
-#     def __repr__(self):
-#         return "<(image_url='%s', school_id='%s')>" % (
-#             self.image_url,
-#             self.school_id
-#         )
 
 
 class School(Base):
@@ -162,6 +106,6 @@ class School(Base):
         db.add(self)
         db.commit()
         db.refresh(self)
-        # return self.school_images[-1]
+        return self.school_images[-1]
 
 

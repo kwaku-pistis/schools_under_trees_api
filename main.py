@@ -91,6 +91,11 @@ def get_all_districts(db: Session = Depends(get_db)):
     return crud.get_all_districts(db=db)
 
 
+@app.get('/district-schools/', tags=["District"])
+def get_district_schools(id: int, db: Session = Depends(get_db)):
+    return crud.get_school_by_district_id(db=db, district_id=id)
+
+
 @app.post('/create-school/', tags=["School"])
 def create_school(school: schemas.SchoolBase, db: Session = Depends(get_db)):
     # district_record = crud.get_district_by_id(db=db, id=school.district_id)
@@ -108,9 +113,14 @@ def create_school(school: schemas.SchoolBase, db: Session = Depends(get_db)):
 
 
 
-@app.get('/schools/', tags=["School"])
+@app.get('/all-schools/', tags=["School"])
 def get_all_schools(db: Session = Depends(get_db)):
     return crud.get_all_schools(db=db)
+
+
+@app.get('/school/', tags=["School"])
+def get_school_by_name(name: str, db: Session = Depends(get_db)):
+    return crud.get_school_by_name(db=db, name=name)
 
 
 @app.post('/add-images/', tags=["School"])
