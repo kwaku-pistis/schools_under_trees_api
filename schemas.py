@@ -1,5 +1,5 @@
 from typing import Optional, List
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr
 
 
 class DistrictBase(BaseModel):
@@ -39,3 +39,17 @@ class SchoolBase(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class Email(BaseModel):
+    full_name: str
+    email: EmailStr
+    contact_number: Optional[str] = None
+    message: str
+
+    class Config:
+        orm_mode = True
+
+
+class EmailSchema(BaseModel):
+    email: List[EmailStr]

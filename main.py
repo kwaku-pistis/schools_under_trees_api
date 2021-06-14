@@ -1,4 +1,7 @@
-from typing import Optional
+from typing import List, Optional
+
+from sqlalchemy.sql.expression import false
+from fastapi_mail import FastMail, MessageSchema,ConnectionConfig
 from sqlalchemy.orm.session import Session
 import uvicorn
 from fastapi import FastAPI, Depends
@@ -116,17 +119,6 @@ def get_district_schools(id: int, db: Session = Depends(get_db)):
 
 @app.post('/create-school/', tags=["School"])
 def create_school(school: schemas.SchoolBase, db: Session = Depends(get_db)):
-    # district_record = crud.get_district_by_id(db=db, id=school.district_id)
-    # if district_record:
-    #     result = district_record.add_schools(
-    #         db=db, 
-    #         name=school.name, 
-    #         description=school.description, 
-    #         location=school.location,
-    #         images=school.school_images
-    #     )
-    #     return {"status": 201, "message": result}
-
     return crud.create_school(db=db, school=school)
 
 
@@ -161,6 +153,36 @@ def get_school_images(school_id: int, image_category: Optional[str] = None, db: 
 @app.get('/all-images/', tags=["School"])
 def get_school_images_by_category(category: Optional[str] = None, db: Session = Depends(get_db)):
     return crud.get_all_images(db=db, category=category)
+
+
+@app.post('/send-email/', tags=["Email"])
+async def send_email(email: schemas.Email, db: Session = Depends(get_db)):
+    conf = ConnectionConfig(
+        MAIL_USERNAME="sutpuser@gmail.com",
+        MAIL_PASSWORD="app.sutpuser",
+        MAIL_PORT=587,
+        MAIL_SERVER="smtp.gmail.com",
+        MAIL_TLS=True,
+        MAIL_SSL=False,
+        MAIL_FROM=email.email,
+        MAIL_FROM_NAME=email.full_name,
+        USE_CREDENTIALS=True
+    )
+
+    # message schema for the email
+    message = MessageSchema(
+        subject="SCHOOLS UNDER TREES CONTACT MAIL",
+        # recipients=email.dict().get("email"),  # List of recipients, as many as you can pass
+        recipients=["zeroschoolsundertrees@gmail.com"],
+        body=email.message,
+        subtype="plain"
+    )
+
+    fm = FastMail(conf)
+    await fm.send_message(message)
+    print(message)
+
+    return crud.save_email(db=db, email=email)
 
 
 if __name__ == "__main__":

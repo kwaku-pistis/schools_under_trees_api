@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.functions import mode
@@ -112,3 +113,16 @@ def get_all_images(db: Session, category: str):
         return db.query(models.SchoolImages).filter(models.SchoolImages.category == category).all()
 
     return db.query(models.SchoolImages).all()
+
+
+def save_email(db: Session, email: schemas.Email):
+    data = models.Email(
+        full_name=email.full_name,
+        email_address=email.email,
+        contact_number=email.contact_number,
+        message=email.message
+    )
+    db.add(data)
+    db.commit()
+    db.refresh(data)
+    return data

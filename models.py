@@ -109,3 +109,20 @@ class School(Base):
         return self.school_images[-1]
 
 
+class Email(Base):
+    __tablename__ = 'emails'
+
+    id = Column(Integer, primary_key=True, index=True)
+    date_created = Column(DateTime, default=datetime.utcnow)
+    full_name = Column(String)
+    email_address = Column(String)
+    contact_number = Column(String)
+    message = Column(String)
+
+    def __repr__(self):
+        return "<(full_name='%s', email_address='%s', contact_number='%s', message='%s')>" % (
+            self.full_name,
+            self.email_address,
+            self.contact_number,
+            self.message
+        )
