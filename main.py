@@ -1,13 +1,12 @@
 from typing import List, Optional
-
 from sqlalchemy.sql.expression import false
 from fastapi_mail import FastMail, MessageSchema,ConnectionConfig
 from sqlalchemy.orm.session import Session
-import uvicorn
 from fastapi import FastAPI, Depends
-import models, schemas, crud
 from database import SessionLocal, engine
 from fastapi.middleware.cors import CORSMiddleware
+import models, schemas, crud
+import uvicorn
 
 
 models.Base.metadata.create_all(engine)
