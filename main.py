@@ -1,12 +1,14 @@
 from typing import List, Optional
-from sqlalchemy.sql.expression import false
-from fastapi_mail import FastMail, MessageSchema,ConnectionConfig
+from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
 from sqlalchemy.orm.session import Session
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, File, UploadFile
+from fastapi.responses import HTMLResponse
 from database import SessionLocal, engine
 from fastapi.middleware.cors import CORSMiddleware
+from datetime import datetime
 import models, schemas, crud
 import uvicorn
+import pyrebase
 
 
 models.Base.metadata.create_all(engine)
@@ -18,6 +20,15 @@ app = FastAPI(
     version="1.0.0"
 )
 
+# adding pyrebase config
+config = {
+  "apiKey": "AIzaSyB9CpPZhGUPls3Coe6j6TB285MacUWVlPM",
+  "authDomain": "principal-yen-314412.firebaseapp.com",
+  "databaseURL": "",
+  "storageBucket": "principal-yen-314412.appspot.com"
+}
+
+firebase = pyrebase.initialize_app(config)
 
 origins = [
     "http://localhost:8000",
@@ -76,6 +87,23 @@ print('Data count:', len(data))
 @app.get("/", include_in_schema=False)
 async def root():
     return {"message": "Welcome to Schools Under Trees Web Api"}
+
+
+# @app.get("/", include_in_schema=False)
+# async def main():
+#     content = """
+#         <body>
+#         <form action="/files/" enctype="multipart/form-data" method="post">
+#         <input name="files" type="file" multiple>
+#         <input type="submit">
+#         </form>
+#         <form action="/upload-images/" enctype="multipart/form-data" method="post">
+#         <input name="files" type="file" multiple>
+#         <input type="submit">
+#         </form>
+#         </body>
+#     """
+#     return HTMLResponse(content=content)
 
 
 @app.post('/create-region/', tags=["Region"])
@@ -182,6 +210,19 @@ async def send_email(email: schemas.Email, db: Session = Depends(get_db)):
     print(message)
 
     return crud.save_email(db=db, email=email)
+
+
+@app.post('/upload-images/', tags=["School"])
+async def upload_images(files: List[UploadFile] = File(...)):
+    image_url = []
+    storage = firebase.storage()
+    for file in files:
+        image = file.file.read()
+        storage.child("school_images/"+file.filename).put(image)
+        download_url = storage.child("school_images/"+file.filename).get_url("")
+        print(download_url)
+        image_url.append(download_url)
+    return {"image_urls": image_url}
 
 
 if __name__ == "__main__":

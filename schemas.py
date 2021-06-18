@@ -30,6 +30,10 @@ class SchoolImagesBase(ImageBase):
         orm_mode = True
 
 
+class UploadImageBase(BaseModel):
+    image: List
+
+
 class SchoolBase(BaseModel):
     name: str = Field(title="Name of School")
     description: Optional[str] = Field(description='A short description of the school')
