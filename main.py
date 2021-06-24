@@ -213,16 +213,30 @@ async def send_email(email: schemas.Email, db: Session = Depends(get_db)):
 
 
 @app.post('/upload-images/', tags=["School"])
-async def upload_images(files: List[UploadFile] = File(...)):
+async def upload_images(images: List[UploadFile] = File(...)):
     image_urls = []
     storage = firebase.storage()
-    for file in files:
+    for file in images:
         image = file.file.read()
         storage.child("school_images/"+file.filename).put(image)
         download_url = storage.child("school_images/"+file.filename).get_url("")
         print(download_url)
         image_urls.append(download_url)
     return {"image_urls": image_urls}
+
+
+# @app.post('/upload-images/', tags=["School"])
+# async def upload_images(images: List[bytes] = File(...)):
+#     image_urls = []
+#     storage = firebase.storage()
+#     for file in images:
+#         print(file)
+#         # image = file.file.read()
+#         # storage.child("school_images/"+file.filename).put(image)
+#         # download_url = storage.child("school_images/"+file.filename).get_url("")
+#         # print(download_url)
+#         # image_urls.append(download_url)
+#     return {"image_urls": image_urls}
 
 
 if __name__ == "__main__":
