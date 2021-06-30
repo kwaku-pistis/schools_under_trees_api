@@ -164,12 +164,16 @@ def get_school_by_name(name: str, db: Session = Depends(get_db)):
 def add_images_to_school(image: schemas.SchoolImagesBase, db: Session = Depends(get_db)):
     school_record = crud.get_school_by_id(db=db, id=image.school_id)
     if school_record:
-        result = school_record.add_images(
-            db=db,
-            image_url=image.image_url,
-            image_category=image.category
-        )
+        result = []
+        for url in image.image_urls:
+            result.append(school_record.add_images(
+                db=db,
+                image_url=url.image_url,
+                image_category=url.category
+            ))
         return {"status": 201, "message": result}
+    else:
+        return {"status": 404, "message": "School not found"}
 
 
 @app.get('/school-images/', tags=["School"])

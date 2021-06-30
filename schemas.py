@@ -23,8 +23,9 @@ class ImageBase(BaseModel):
     category: str = Field(title="Image Category", description="This field specifies whether the image is a before, during or an after picture.")
 
 
-class SchoolImagesBase(ImageBase):
+class SchoolImagesBase(BaseModel):
     school_id: int
+    image_urls: List[ImageBase]
 
     class Config:
         orm_mode = True
