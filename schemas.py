@@ -58,3 +58,8 @@ class Email(BaseModel):
 
 class EmailSchema(BaseModel):
     email: List[EmailStr]
+
+
+class LocationBase(BaseModel):
+    school_id: int
+    url: str

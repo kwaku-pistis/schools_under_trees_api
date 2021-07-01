@@ -161,6 +161,12 @@ def get_school_by_name(name: str, db: Session = Depends(get_db)):
     return crud.get_school_by_name(db=db, name=name)
 
 
+@app.put('/school-location', tags=["School"])
+def update_school_location(location: schemas.LocationBase, db: Session = Depends(get_db)):
+    result = crud.update_school_location(db=db, location=location)
+    return {"status": 200, "message": "Update Successful", "data": result}
+
+
 @app.post('/add-images/', tags=["School"])
 def add_images_to_school(image: schemas.SchoolImagesBase, db: Session = Depends(get_db)):
     school_record = crud.get_school_by_id(db=db, id=image.school_id)

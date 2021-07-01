@@ -101,6 +101,16 @@ def get_school_by_district_id(db: Session, district_id: int):
     return db.query(models.School).filter(models.School.district_id == district_id).all()
 
 
+def update_school_location(db: Session, location: schemas.LocationBase):
+    result = db.query(models.School).filter(models.School.id == location.school_id).one()
+    if result:
+        result.location = location.url
+        db.add(result)
+        db.commit()
+        db.refresh(result)
+    return result
+
+
 def get_images_by_school_id(db: Session, id: int, image_category: str):
     if image_category:
         return db.query(models.SchoolImages).filter(models.SchoolImages.school_id == id, models.SchoolImages.category == image_category).all()

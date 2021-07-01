@@ -3,7 +3,9 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import databases
 
-SQLALCHEMY_DATABASE_URL = 'postgresql://sut_user:sutuser@159.65.179.253/zero_schools_under_trees' # sut
+SQLALCHEMY_DATABASE_URL = 'postgresql://sut_user:sutuser@159.65.179.253/zero_schools_under_trees'
+
+# SQLALCHEMY_DATABASE_URL = 'postgresql://sut_user:sutuser@159.65.179.253/sut'
 
 psql_database = databases.Database(SQLALCHEMY_DATABASE_URL)
 
