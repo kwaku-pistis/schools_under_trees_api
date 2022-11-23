@@ -30,7 +30,7 @@ config = {
 
 firebase = pyrebase.initialize_app(config)
 
-origins = ["*"]
+origins = ["*", "https://k3a5h4.deta.dev/"]
 
 app.add_middleware(
     CORSMiddleware,
